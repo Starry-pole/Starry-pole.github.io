@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Starry Pole — Звёздный Полюс | Space Station 14</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #06090f;
+            --bg-section: rgba(8, 12, 24, 0.55);
+            --bg-card: rgba(10, 16, 30, 0.65);
+            --bg-card-inner: rgba(6, 10, 20, 0.6);
+            --border-glow: rgba(0, 210, 190, 0.2);
+            --border-glow-hover: rgba(0, 210, 190, 0.5);
+            --accent: #00e5c7;
+            --accent-dim: #009e8a;
+            --accent-glow: rgba(0, 229, 199, 0.35);
+            --text-primary: #e8f0ff;
+            --text-secondary: #7a96bf;
+            --text-muted: #3e5678;
+            --lobby: #f0a030;
+            --lobby-glow: rgba(240, 160, 48, 0.4);
+            --ongoing: #00d4a8;
+            --ongoing-glow: rgba(0, 212, 168, 0.4);
+            --ended: #5a6578;
+            --danger: #ff4d6a;
+            --danger-glow: rgba(255, 77, 106, 0.35);
+            --warning: #ffc233;
+            --warning-glow: rgba(255, 194, 51, 0.3);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg-deep);
+            font-family: 'Outfit', system-ui, sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .atmo-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            animation: blobFadeIn 2.5s ease forwards;
+        }
+        .atmo-blob.b1 {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(0, 180, 160, 0.1), transparent 70%);
+            top: -15%; left: -10%;
+            animation-delay: 0.3s;
+        }
+        .atmo-blob.b2 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(20, 60, 180, 0.08), transparent 70%);
+            bottom: -10%; right: -8%;
+            animation-delay: 0.6s;
+        }
+        .atmo-blob.b3 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(0, 229, 199, 0.05), transparent 70%);
+            top: 40%; left: 55%;
+            transform: translate(-50%, -50%);
+            animation-delay: 0.9s;
+        }
+        .atmo-blob.b4 {
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, rgba(80, 40, 160, 0.06), transparent 70%);
+            top: 70%; left: 10%;
+            animation-delay: 1.2s;
+        }
+
+        @keyframes blobFadeIn { to { opacity: 1; } }
+
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(6, 9, 15, 0.7);
+            backdrop-filter: blur(20px) saturate(1.4);
+            -webkit-backdrop-filter: blur(20px) saturate(1.4);
+            border-bottom: 1px solid rgba(0, 210, 190, 0.08);
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .navbar.scrolled {
+            background: rgba(6, 9, 15, 0.92);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        }
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none; color: var(--text-primary);
+        }
+        .nav-logo-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, rgba(0, 229, 199, 0.15), rgba(0, 100, 180, 0.1));
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            border: 1px solid rgba(0, 229, 199, 0.2);
+        }
+        .nav-logo-icon img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            border-radius: 9px;
+        }
+        .nav-logo-text { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.3px; }
+        .nav-links { display: flex; align-items: center; gap: 6px; list-style: none; }
+        .nav-links a {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 10px;
+            font-size: 0.82rem; font-weight: 500;
+            color: var(--text-secondary); text-decoration: none;
+            transition: all 0.2s ease; white-space: nowrap;
+        }
+        .nav-links a:hover { color: var(--text-primary); background: rgba(0, 210, 190, 0.08); }
+        .nav-links a.nav-cta {
+            background: linear-gradient(135deg, rgba(0, 229, 199, 0.15), rgba(0, 120, 180, 0.1));
+            border: 1px solid rgba(0, 229, 199, 0.3);
+            color: var(--accent); font-weight: 600;
+        }
+        .nav-links a.nav-cta:hover {
+            background: linear-gradient(135deg, rgba(0, 229, 199, 0.25), rgba(0, 120, 180, 0.15));
+            border-color: var(--accent); box-shadow: 0 4px 16px -4px var(--accent-glow);
+        }
+        .nav-mobile-toggle {
+            display: none; background: none; border: none;
+            color: var(--text-secondary); font-size: 1.5rem;
+            cursor: pointer; padding: 4px; line-height: 1;
+        }
+        @media (max-width: 768px) {
+            .nav-mobile-toggle { display: block; }
+            .nav-links {
+                position: fixed; top: 64px; left: 0; right: 0;
+                flex-direction: column;
+                background: rgba(6, 9, 15, 0.96);
+                backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+                padding: 16px; gap: 4px;
+                border-bottom: 1px solid rgba(0, 210, 190, 0.1);
+                transform: translateY(-120%); opacity: 0;
+                transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+                pointer-events: none;
+            }
+            .nav-links.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+            .nav-links a { width: 100%; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; }
+        }
+
+        .hero {
+            position: relative; z-index: 1;
+            min-height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; padding: 100px 24px 60px;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 18px; border-radius: 40px;
+            background: rgba(0, 229, 199, 0.08);
+            border: 1px solid rgba(0, 229, 199, 0.2);
+            color: var(--accent); font-size: 0.78rem;
+            font-weight: 600; letter-spacing: 0.5px; margin-bottom: 28px;
+            opacity: 0; transform: translateY(16px);
+            animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+        }
+        .hero-badge-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--accent); box-shadow: 0 0 8px var(--accent-glow);
+            animation: pulseOnline 1.6s ease-in-out infinite;
+        }
+        @keyframes pulseOnline {
+            0%, 100% { opacity: 0.4; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .hero h1 {
+            font-size: clamp(2.8rem, 7vw, 5rem); font-weight: 900;
+            letter-spacing: -1.5px; line-height: 1.05; margin-bottom: 8px;
+            opacity: 0; transform: translateY(20px);
+            animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+        }
+        .hero h1 .accent {
+            background: linear-gradient(135deg, var(--accent), #00b4d8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero-sub {
+            font-size: 1.5rem; font-weight: 400; color: var(--text-secondary);
+            margin-bottom: 32px; opacity: 0; transform: translateY(16px);
+            animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+        }
+        .hero-desc {
+            max-width: 560px; font-size: 1.05rem; line-height: 1.7;
+            color: var(--text-secondary); margin-bottom: 40px;
+            opacity: 0; transform: translateY(16px);
+            animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+        }
+        .hero-actions {
+            display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+            opacity: 0; transform: translateY(16px);
+            animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
+        }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUpScale { to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 28px; border-radius: 14px;
+            font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.95rem;
+            text-decoration: none; cursor: pointer;
+            transition: all 0.25s ease; border: none;
+            position: relative; overflow: hidden;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-dim), #0088aa);
+            color: #fff;
+            box-shadow: 0 4px 20px -4px var(--accent-glow), 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px -4px var(--accent-glow), 0 4px 8px rgba(0, 0, 0, 0.3); }
+        .btn-primary:active { transform: translateY(0) scale(0.98); }
+        .btn-secondary {
+            background: rgba(40, 50, 70, 0.5);
+            border: 1px solid rgba(100, 130, 170, 0.25);
+            color: var(--text-primary);
+        }
+        .btn-secondary:hover { background: rgba(50, 65, 90, 0.6); border-color: rgba(120, 150, 200, 0.4); transform: translateY(-2px); }
+        .btn-secondary:active { transform: translateY(0) scale(0.98); }
+
+        .section { position: relative; z-index: 1; padding: 80px 24px; }
+        .section-inner { max-width: 1100px; margin: 0 auto; }
+        .section-label {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1.5px; color: var(--accent); margin-bottom: 12px;
+        }
+        .section-label::before { content: ''; width: 20px; height: 1px; background: var(--accent-dim); }
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800;
+            letter-spacing: -0.8px; line-height: 1.15; margin-bottom: 16px;
+        }
+        .section-desc { font-size: 1.05rem; line-height: 1.7; color: var(--text-secondary); max-width: 600px; }
+
+        .status-section {
+            padding: 0 24px 80px; position: relative; z-index: 1;
+            display: flex; justify-content: center;
+        }
+        .server-card {
+            position: relative; z-index: 1; max-width: 600px; width: 100%;
+            background: var(--bg-card);
+            backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3);
+            border-radius: 28px; border: 1px solid var(--border-glow);
+            box-shadow: 0 0 0 1px rgba(0, 210, 190, 0.05) inset, 0 2px 4px rgba(0, 0, 0, 0.3), 0 12px 40px -8px rgba(0, 0, 0, 0.6), 0 0 80px -20px var(--accent-glow);
+            overflow: hidden; opacity: 0; transform: translateY(24px) scale(0.98);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+        .server-card.visible {
+            opacity: 1; transform: translateY(0) scale(1);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+        .server-card:hover {
+            transform: translateY(-3px) scale(1.003);
+            box-shadow: 0 0 0 1px rgba(0, 210, 190, 0.1) inset, 0 4px 8px rgba(0, 0, 0, 0.3), 0 20px 60px -12px rgba(0, 0, 0, 0.7), 0 0 120px -20px var(--accent-glow);
+            border-color: var(--border-glow-hover);
+        }
+        .card-header {
+            position: relative; padding: 1.5rem 1.8rem;
+            border-bottom: 1px solid rgba(0, 210, 190, 0.1);
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+        }
+        .card-header::after {
+            content: ''; position: absolute; bottom: -1px; left: 10%; right: 10%;
+            height: 1px; background: linear-gradient(90deg, transparent, var(--accent-dim), transparent); opacity: 0.5;
+        }
+        .header-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+        .server-icon {
+            position: relative; width: 54px; height: 54px; border-radius: 18px;
+            background: linear-gradient(135deg, rgba(0, 229, 199, 0.15), rgba(0, 100, 180, 0.1));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; flex-shrink: 0;
+            border: 1px solid rgba(0, 229, 199, 0.2);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 20px -4px var(--accent-glow);
+            transition: transform 0.3s ease;
+        }
+        .server-card:hover .server-icon { transform: rotate(-5deg) scale(1.05); }
+        .title-section { flex: 1; min-width: 0; }
+        .title-section h2 { font-size: 1.65rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text-primary); line-height: 1.2; }
+        .title-sub {
+            display: flex; align-items: center; gap: 8px;
+            margin-top: 4px; font-size: 0.78rem; color: var(--text-secondary); font-weight: 400;
+        }
+        .server-status-indicator {
+            display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+            background: var(--text-muted); transition: background 0.3s, box-shadow 0.3s; flex-shrink: 0;
+        }
+        .server-status-indicator.online { background: var(--ongoing); box-shadow: 0 0 6px var(--ongoing-glow); animation: pulseOnline 1.6s ease-in-out infinite; }
+        .server-status-indicator.offline { background: var(--danger); box-shadow: 0 0 6px var(--danger-glow); animation: none; }
+        .server-status-indicator.checking { background: var(--warning); box-shadow: 0 0 4px var(--warning-glow); animation: pulseCheck 0.7s ease-in-out infinite; }
+        @keyframes pulseCheck { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        .status-text { font-weight: 500; }
+        .status-text.online-text { color: var(--ongoing); }
+        .status-text.offline-text { color: var(--danger); }
+        .status-text.checking-text { color: var(--warning); }
+        .header-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; flex-shrink: 0; }
+        .server-tag {
+            display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px;
+            font-size: 0.72rem; font-weight: 600; letter-spacing: 0.3px;
+            border: 1px solid rgba(0, 210, 190, 0.25);
+            background: rgba(0, 210, 190, 0.08); color: #8adccf;
+            transition: all 0.2s ease; white-space: nowrap;
+        }
+        .server-tag:hover { background: rgba(0, 210, 199, 0.16); border-color: rgba(0, 210, 190, 0.5); color: var(--accent); transform: translateY(-1px); }
+        .server-tag.tag-18plus { background: rgba(255, 77, 106, 0.1); border-color: rgba(255, 77, 106, 0.3); color: #ff8fa3; }
+        .server-tag.tag-18plus:hover { background: rgba(255, 77, 106, 0.2); border-color: rgba(255, 77, 106, 0.5); color: #ffb0be; }
+        .server-tag.tag-mrp { background: rgba(80, 200, 120, 0.1); border-color: rgba(80, 200, 120, 0.25); color: #7dd8a0; }
+        .server-tag.tag-mrp:hover { background: rgba(80, 200, 120, 0.18); border-color: rgba(80, 200, 120, 0.45); color: #a0eabb; }
+        .server-tag.tag-hrp { background: rgba(180, 120, 255, 0.1); border-color: rgba(180, 120, 255, 0.25); color: #c4a0f0; }
+        .server-tag.tag-hrp:hover { background: rgba(180, 120, 255, 0.18); border-color: rgba(180, 120, 255, 0.45); color: #dcc0ff; }
+        .server-tag.tag-ru { background: rgba(60, 140, 255, 0.1); border-color: rgba(60, 140, 255, 0.25); color: #80b8ff; }
+        .server-tag.tag-ru:hover { background: rgba(60, 140, 255, 0.18); border-color: rgba(60, 140, 255, 0.45); color: #a0d0ff; }
+        .info-panel { padding: 1.5rem 1.8rem 1.6rem; }
+        .status-row {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 12px;
+            background: var(--bg-card-inner); border-radius: 18px;
+            padding: 0.85rem 1.3rem; margin-bottom: 1.3rem;
+            border: 1px solid rgba(0, 210, 190, 0.08);
+        }
+        .status-label { font-weight: 500; color: var(--text-secondary); font-size: 0.88rem; letter-spacing: 0.2px; }
+        .status-badge {
+            font-weight: 700; padding: 5px 16px; border-radius: 40px;
+            font-size: 0.82rem; letter-spacing: 0.2px;
+            background: rgba(60, 75, 100, 0.4); color: var(--text-secondary);
+            border: 1px solid transparent; transition: all 0.3s ease;
+        }
+        .status-badge.lobby { background: rgba(240, 160, 48, 0.15); color: var(--lobby); border-color: rgba(240, 160, 48, 0.3); box-shadow: 0 0 12px -4px var(--lobby-glow); }
+        .status-badge.ongoing { background: rgba(0, 212, 168, 0.12); color: var(--ongoing); border-color: rgba(0, 212, 168, 0.3); box-shadow: 0 0 14px -4px var(--ongoing-glow); }
+        .status-badge.ended { background: rgba(90, 101, 120, 0.25); color: #8a94a6; border-color: rgba(90, 101, 120, 0.3); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.3rem; }
+        .stat-card {
+            position: relative; background: var(--bg-card-inner); border-radius: 18px;
+            padding: 1rem 1.15rem; border: 1px solid rgba(0, 210, 190, 0.08);
+            overflow: hidden; transition: border-color 0.3s ease, transform 0.25s ease;
+        }
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 229, 199, 0.2), transparent);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .stat-card:hover { border-color: rgba(0, 210, 190, 0.2); transform: translateY(-1px); }
+        .stat-card:hover::before { opacity: 1; }
+        .stat-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+        .stat-value { font-size: 1.55rem; font-weight: 800; color: var(--text-primary); line-height: 1.2; word-break: break-word; }
+        .stat-value .highlight { color: var(--accent); text-shadow: 0 0 12px var(--accent-glow); }
+        .stat-value.small-text { font-size: 1.2rem; }
+        .stat-value.medium-text { font-size: 1.35rem; }
+        .meta-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 1.3rem; padding: 0 2px; }
+        .meta-item { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.2px; }
+        .meta-item strong { color: var(--text-secondary); font-weight: 600; }
+        .connect-area { display: flex; gap: 10px; flex-wrap: wrap; }
+        .connect-btn {
+            flex: 1; min-width: 200px; position: relative;
+            background: linear-gradient(135deg, rgba(0, 229, 199, 0.12), rgba(0, 120, 180, 0.08));
+            border: 1px solid rgba(0, 229, 199, 0.3); color: var(--accent);
+            font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 0.88rem;
+            padding: 14px 20px; border-radius: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.25s ease; letter-spacing: 0.3px; overflow: hidden;
+        }
+        .connect-btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(0, 229, 199, 0.2), rgba(0, 120, 180, 0.12));
+            opacity: 0; transition: opacity 0.25s;
+        }
+        .connect-btn:hover::before { opacity: 1; }
+        .connect-btn:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 6px 24px -4px var(--accent-glow); }
+        .connect-btn:active { transform: translateY(0) scale(0.99); }
+        .connect-btn.copied { background: linear-gradient(135deg, rgba(0, 200, 120, 0.15), rgba(0, 160, 100, 0.1)); border-color: rgba(0, 200, 120, 0.5); color: #6ee8b0; }
+        .connect-btn span { position: relative; z-index: 1; }
+        .refresh-btn {
+            position: relative; background: rgba(40, 50, 70, 0.4);
+            border: 1px solid rgba(100, 130, 170, 0.2); color: var(--text-secondary);
+            font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.88rem;
+            padding: 14px 20px; border-radius: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.25s ease;
+        }
+        .refresh-btn:hover { background: rgba(50, 65, 90, 0.5); border-color: rgba(100, 140, 190, 0.35); color: var(--text-primary); transform: translateY(-1px); }
+        .refresh-btn:active { transform: translateY(0) scale(0.97); }
+        .refresh-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+        .loading-spinner {
+            display: inline-block; width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.2); border-radius: 50%;
+            border-top-color: var(--accent); animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .update-info {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 8px; margin-top: 1.2rem; padding-top: 0.9rem;
+            border-top: 1px solid rgba(0, 210, 190, 0.06);
+            font-size: 0.7rem; color: var(--text-muted);
+        }
+        .update-note { transition: color 0.3s; }
+        .update-note.success { color: var(--ongoing); }
+        .update-note.error { color: var(--danger); }
+        .card-footer {
+            position: relative; text-align: center; padding: 0.9rem 1.2rem 1rem;
+            font-size: 0.68rem; color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.15); letter-spacing: 0.3px;
+        }
+        .card-footer::before {
+            content: ''; position: absolute; top: 0; left: 15%; right: 15%;
+            height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 210, 190, 0.08), transparent);
+        }
+        @keyframes dataFlash { 0% { background: rgba(0, 229, 199, 0.1); } 100% { background: var(--bg-card-inner); } }
+        .stat-card.flash { animation: dataFlash 0.8s ease; }
+
+        .about-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 48px; }
+        .about-card {
+            background: var(--bg-card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 210, 190, 0.08); border-radius: 22px;
+            padding: 28px 22px; transition: all 0.3s ease;
+        }
+        .about-card:hover { border-color: rgba(0, 210, 190, 0.2); transform: translateY(-3px); box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.5); }
+        .about-card-icon {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin-bottom: 16px;
+            background: linear-gradient(135deg, rgba(0, 229, 199, 0.1), rgba(0, 100, 180, 0.08));
+            border: 1px solid rgba(0, 229, 199, 0.12);
+        }
+        .about-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+        .about-card p { font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary); }
+        @media (max-width: 1024px) { .about-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 640px) { .about-grid { grid-template-columns: 1fr; } }
+
+        .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 48px; }
+        .link-card {
+            display: flex; align-items: center; gap: 16px;
+            background: var(--bg-card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 210, 190, 0.08); border-radius: 18px;
+            padding: 20px 24px; text-decoration: none; color: var(--text-primary);
+            transition: all 0.25s ease;
+        }
+        .link-card:hover { border-color: rgba(0, 210, 190, 0.25); transform: translateY(-2px); box-shadow: 0 8px 30px -8px rgba(0, 0, 0, 0.4); }
+        .link-card-icon {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; flex-shrink: 0; transition: transform 0.3s ease;
+        }
+        .link-card:hover .link-card-icon { transform: scale(1.1) rotate(-3deg); }
+        .link-card-icon.discord { background: rgba(88, 101, 242, 0.12); border: 1px solid rgba(88, 101, 242, 0.2); }
+        .link-card-icon.github { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .link-card-icon.wiki { background: rgba(0, 229, 199, 0.1); border: 1px solid rgba(0, 229, 199, 0.15); }
+        .link-card.disabled { opacity: 0.55; cursor: default; pointer-events: none; }
+        .link-card-text { flex: 1; min-width: 0; }
+        .link-card-text h4 { font-size: 1rem; font-weight: 600; margin-bottom: 3px; }
+        .link-card-text p { font-size: 0.78rem; color: var(--text-muted); }
+        .link-card-arrow { color: var(--text-muted); font-size: 1.2rem; transition: transform 0.2s, color 0.2s; flex-shrink: 0; }
+        .link-card:hover .link-card-arrow { transform: translateX(3px); color: var(--accent); }
+        .link-card-badge {
+            display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px;
+            font-size: 0.65rem; font-weight: 600; letter-spacing: 0.3px;
+            background: rgba(255, 194, 51, 0.1); border: 1px solid rgba(255, 194, 51, 0.2);
+            color: var(--warning); flex-shrink: 0;
+        }
+
+        .steps-list { display: flex; flex-direction: column; gap: 0; margin-top: 48px; position: relative; }
+        .steps-list::before {
+            content: ''; position: absolute; left: 27px; top: 40px; bottom: 40px;
+            width: 2px; background: linear-gradient(to bottom, var(--accent-dim), rgba(0, 210, 190, 0.08));
+            border-radius: 1px;
+        }
+        .step-item { display: flex; gap: 20px; align-items: flex-start; padding: 20px 0; position: relative; }
+        .step-number {
+            width: 56px; height: 56px; border-radius: 16px;
+            background: var(--bg-card); border: 1px solid rgba(0, 210, 190, 0.15);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; font-weight: 800; color: var(--accent);
+            flex-shrink: 0; position: relative; z-index: 1;
+        }
+        .step-content { flex: 1; padding-top: 4px; }
+        .step-content h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+        .step-content p { font-size: 0.9rem; line-height: 1.65; color: var(--text-secondary); }
+        .step-content a { color: var(--accent); text-decoration: none; font-weight: 500; transition: opacity 0.2s; }
+        .step-content a:hover { opacity: 0.8; text-decoration: underline; }
+
+        .faq-list { display: flex; flex-direction: column; gap: 10px; margin-top: 48px; max-width: 800px; }
+        .faq-item {
+            background: var(--bg-card); border: 1px solid rgba(0, 210, 190, 0.08);
+            border-radius: 16px; overflow: hidden; transition: border-color 0.3s;
+        }
+        .faq-item.open { border-color: rgba(0, 210, 190, 0.2); }
+        .faq-question {
+            width: 100%; display: flex; align-items: center; justify-content: space-between;
+            gap: 16px; padding: 18px 22px; background: none; border: none;
+            color: var(--text-primary); font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer;
+            text-align: left; transition: color 0.2s;
+        }
+        .faq-question:hover { color: var(--accent); }
+        .faq-chevron {
+            font-size: 1.2rem; color: var(--text-muted);
+            transition: transform 0.3s ease, color 0.2s; flex-shrink: 0;
+        }
+        .faq-item.open .faq-chevron { transform: rotate(180deg); color: var(--accent); }
+        .faq-answer {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
+            padding: 0 22px;
+        }
+        .faq-item.open .faq-answer { max-height: 300px; padding: 0 22px 18px; }
+        .faq-answer p { font-size: 0.88rem; line-height: 1.7; color: var(--text-secondary); }
+        .faq-answer a { color: var(--accent); text-decoration: none; font-weight: 500; }
+        .faq-answer a:hover { text-decoration: underline; }
+
+        .site-footer {
+            position: relative; z-index: 1;
+            border-top: 1px solid rgba(0, 210, 190, 0.06);
+            padding: 40px 24px; text-align: center;
+        }
+        .footer-inner { max-width: 1100px; margin: 0 auto; }
+        .footer-logo { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; color: var(--text-primary); }
+        .footer-logo .accent { background: linear-gradient(135deg, var(--accent), #00b4d8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .footer-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
+        .footer-links { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-bottom: 24px; }
+        .footer-links a { font-size: 0.82rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--accent); }
+        .footer-copy { font-size: 0.72rem; color: var(--text-muted); padding-top: 20px; border-top: 1px solid rgba(0, 210, 190, 0.05); }
+
+        .reveal {
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+        .reveal-delay-5 { transition-delay: 0.5s; }
+        .reveal-delay-6 { transition-delay: 0.6s; }
+        .reveal-delay-7 { transition-delay: 0.7s; }
+
+        .section-divider {
+            position: relative; z-index: 1; height: 1px; max-width: 600px; margin: 0 auto;
+            background: linear-gradient(90deg, transparent, rgba(0, 210, 190, 0.15), transparent);
+        }
+
+        @media (max-width: 768px) {
+            .links-grid { grid-template-columns: 1fr; }
+            .section { padding: 60px 20px; }
+            .hero { padding: 90px 20px 50px; }
+        }
+        @media (max-width: 560px) {
+            .status-section { padding: 0 12px 60px; }
+            .server-card { border-radius: 22px; }
+            .card-header { flex-direction: column; align-items: flex-start; padding: 1.2rem 1.3rem 1rem; gap: 12px; }
+            .header-tags { justify-content: flex-start; }
+            .info-panel { padding: 1.2rem 1.3rem 1.3rem; }
+            .header-left { gap: 12px; }
+            .server-icon { width: 46px; height: 46px; font-size: 24px; border-radius: 14px; }
+            .title-section h2 { font-size: 1.35rem; }
+            .stats-grid { grid-template-columns: 1fr; gap: 0.6rem; }
+            .stat-value { font-size: 1.3rem; }
+            .stat-value.small-text { font-size: 1.05rem; }
+            .stat-value.medium-text { font-size: 1.15rem; }
+            .connect-area { flex-direction: column; }
+            .connect-btn { min-width: unset; }
+            .status-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .meta-row { flex-direction: column; align-items: flex-start; }
+            .steps-list::before { left: 19px; }
+            .step-number { width: 40px; height: 40px; border-radius: 12px; font-size: 1rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .reveal { opacity: 1; transform: none; }
+            .server-card { opacity: 1; transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <div class="atmo-blob b1" aria-hidden="true"></div>
+    <div class="atmo-blob b2" aria-hidden="true"></div>
+    <div class="atmo-blob b3" aria-hidden="true"></div>
+    <div class="atmo-blob b4" aria-hidden="true"></div>
+
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Основная навигация">
+        <a href="#" class="nav-logo">
+            <div class="nav-logo-icon">
+                <!-- ЗАМЕНИТЕ src НА ССЫЛКУ НА ВАШЕ ЛОГО -->
+                <img src="logo.png" alt="Starry Pole">
+            </div>
+            <span class="nav-logo-text">Starry Pole</span>
+        </a>
+        <button class="nav-mobile-toggle" id="nav-toggle" aria-label="Открыть меню" aria-expanded="false">☰</button>
+        <ul class="nav-links" id="nav-links" role="list">
+            <li><a href="#status">Статус</a></li>
+            <li><a href="#about">О сервере</a></li>
+            <li><a href="#links">Ссылки</a></li>
+            <li><a href="#howto">Как начать</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener" class="nav-cta">Discord →</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero" id="hero">
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            Space Station 14 · Русский сервер
+        </div>
+        <h1><span class="accent">Starry Pole</span></h1>
+        <p class="hero-sub">Звёздный Полюс</p>
+        <p class="hero-desc">
+            Русскоязычный сервер Space Station 14 с увлекательным ролевым отыгрышем, дружелюбным сообществом и активной разработкой. Погрузись в космос вместе с нами.
+        </p>
+        <div class="hero-actions">
+            <a href="#status" class="btn btn-primary">Посмотреть статус</a>
+            <a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener" class="btn btn-secondary">Присоединиться к Discord</a>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <section class="status-section" id="status">
+        <main class="server-card" id="server-card" role="region" aria-label="Статус сервера">
+            <div class="card-header">
+                <div class="header-left">
+                    <div class="server-icon" aria-hidden="true">🌌</div>
+                    <div class="title-section">
+                        <h2 id="server-name">Starry Pole</h2>
+                        <div class="title-sub">
+                            <span id="server-indicator" class="server-status-indicator checking" aria-label="Статус подключения"></span>
+                            <span id="status-text" class="status-text checking-text">проверка...</span>
+                            <span style="color: var(--text-muted);">·</span>
+                            <span>SS14</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="header-tags" class="header-tags" aria-label="Теги сервера">
+                    <span class="server-tag">загрузка...</span>
+                </div>
+            </div>
+            <div class="info-panel">
+                <div class="status-row">
+                    <span class="status-label">Статус раунда</span>
+                    <span id="status-badge" class="status-badge" aria-live="polite">—</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card" id="card-players">
+                        <div class="stat-label">Игроки</div>
+                        <div class="stat-value" id="players-count">—</div>
+                    </div>
+                    <div class="stat-card" id="card-map">
+                        <div class="stat-label">Карта</div>
+                        <div class="stat-value small-text" id="map-name">—</div>
+                    </div>
+                    <div class="stat-card" id="card-mode">
+                        <div class="stat-label">Режим / Пресет</div>
+                        <div class="stat-value small-text" id="game-mode">—</div>
+                    </div>
+                    <div class="stat-card" id="card-time">
+                        <div class="stat-label">Длительность раунда</div>
+                        <div class="stat-value medium-text" id="round-time">—</div>
+                    </div>
+                </div>
+                <div class="meta-row">
+                    <span class="meta-item">ID раунда: <strong id="round-number">—</strong></span>
+                </div>
+                <div class="connect-area">
+                    <button id="copy-connect-btn" class="connect-btn" data-address="ss14://93.88.206.3:20002" aria-label="Скопировать адрес сервера">
+                        <span>ss14://93.88.206.3:20002</span>
+                    </button>
+                    <button id="refresh-btn" class="refresh-btn" aria-label="Обновить статус">Обновить</button>
+                </div>
+                <div class="update-info">
+                    <span id="update-time">—</span>
+                    <span id="update-note" class="update-note">ожидание данных</span>
+                </div>
+            </div>
+            <div class="card-footer" id="card-footer-text">Starry Pole · данные с сервера /status</div>
+        </main>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <section class="section" id="about">
+        <div class="section-inner">
+            <div class="reveal">
+                <div class="section-label">О сервере</div>
+                <h2 class="section-title">Почему Starry Pole?</h2>
+                <p class="section-desc">Мы создали место, где каждый раунд — это уникальная история в космосе. Вот что нас отличает.</p>
+            </div>
+            <div class="about-grid">
+                <div class="about-card reveal reveal-delay-1">
+                    <div class="about-card-icon">🎭</div>
+                    <h3>Ролевой отыгрыш</h3>
+                    <p>MRP-формат с правилами отыгрыша, которые делают каждую роль значимой — от капитана до простого повара.</p>
+                </div>
+                <div class="about-card reveal reveal-delay-2">
+                    <div class="about-card-icon">🛡️</div>
+                    <h3>Активная администрация</h3>
+                    <p>Админы онлайн каждый день, готовы помочь с любым вопросом и быстро реагируют на репорты.</p>
+                </div>
+                <div class="about-card reveal reveal-delay-3">
+                    <div class="about-card-icon">🧪</div>
+                    <h3>Кастомный контент</h3>
+                    <p>Уникальные предметы, механизмы и события. И это только начало — новые фичи появляются каждый месяц.</p>
+                </div>
+                <div class="about-card reveal reveal-delay-4">
+                    <div class="about-card-icon">🤝</div>
+                    <h3>Дружелюбное комьюнити</h3>
+                    <p>Доброжелательная атмосфера, помощь новичкам и активное сообщество. Ты не останешься один.</p>
+                </div>
+                <div class="about-card reveal reveal-delay-5">
+                    <div class="about-card-icon">⚙️</div>
+                    <h3>Открытая разработка</h3>
+                    <p>Сервер активно разрабатывается, и вы можете принять участие в разработке — приходи в Discord, чтобы узнать подробности.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <section class="section" id="links">
+        <div class="section-inner">
+            <div class="reveal">
+                <div class="section-label">Ссылки</div>
+                <h2 class="section-title">Где нас найти</h2>
+                <p class="section-desc">Основные ресурсы сервера — выбери удобный способ связи.</p>
+            </div>
+            <div class="links-grid">
+                <a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener" class="link-card reveal reveal-delay-1">
+                    <div class="link-card-icon discord">💬</div>
+                    <div class="link-card-text">
+                        <h4>Discord</h4>
+                        <p>Основной чат и оповещения о раундах</p>
+                    </div>
+                    <span class="link-card-arrow">→</span>
+                </a>
+                <a href="#" class="link-card disabled reveal reveal-delay-2">
+                    <div class="link-card-icon wiki">📖</div>
+                    <div class="link-card-text">
+                        <h4>Вики сервера</h4>
+                        <p>Гайды, правила и документация</p>
+                    </div>
+                    <span class="link-card-badge">в разработке</span>
+                </a>
+                <a href="https://github.com/Starry-pole/starry-pole-14" target="_blank" rel="noopener" class="link-card reveal reveal-delay-3">
+                    <div class="link-card-icon github">🔧</div>
+                    <div class="link-card-text">
+                        <h4>GitHub</h4>
+                        <p>Репозиторий серверного кода</p>
+                    </div>
+                    <span class="link-card-arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <section class="section" id="howto">
+        <div class="section-inner">
+            <div class="reveal">
+                <div class="section-label">Начни играть</div>
+                <h2 class="section-title">Как присоединиться</h2>
+                <p class="section-desc">Всего четыре простых шага — и ты уже на борту станции.</p>
+            </div>
+            <div class="steps-list">
+                <div class="step-item reveal reveal-delay-1">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Скачай клиент Space Station 14</h4>
+                        <p>Загрузи лаунчер с <a href="https://spacestation14.io/about/downloads/" target="_blank" rel="noopener">официального сайта</a>. Доступно для Windows, Linux и macOS.</p>
+                    </div>
+                </div>
+                <div class="step-item reveal reveal-delay-2">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Скопируй адрес сервера</h4>
+                        <p>Нажми кнопку «Скопировать адрес» в виджете статуса выше. Адрес: <code style="color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 0.85em;">ss14://93.88.206.3:20002</code></p>
+                    </div>
+                </div>
+                <div class="step-item reveal reveal-delay-3">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Подключись в лаунчере</h4>
+                        <p>В лаунчере нажми «+» для добавления сервера, введи любое название и вставь скопированный адрес. Сохрани сервер в избранное, выбери его из списка и нажми «Подключиться».</p>
+                    </div>
+                </div>
+                <div class="step-item reveal reveal-delay-4">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Прочитай правила и играй!</h4>
+                        <p>Ознакомься с правилами в нашем <a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener">Discord</a>. Выбери роль и начни свою космическую историю.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <section class="section" id="faq">
+        <div class="section-inner">
+            <div class="reveal">
+                <div class="section-label">Вопросы</div>
+                <h2 class="section-title">Часто задаваемые вопросы</h2>
+                <p class="section-desc">Ответы на самые популярные вопросы.</p>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item reveal reveal-delay-1">
+                    <button class="faq-question" aria-expanded="false">Бесплатно ли играть на сервере?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>Да, полностью! Space Station 14 — это open-source проект, и наш сервер абсолютно бесплатный. Никаких платных привилегий, влияющих на геймплей.</p></div>
+                </div>
+                <div class="faq-item reveal reveal-delay-2">
+                    <button class="faq-question" aria-expanded="false">Я никогда не играл в SS14. Что делать?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>Добро пожаловать! Зайди в наш <a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener">Discord</a> — там всегда помогут новеньким, подскажут базовые механики и подберут подходящую роль для первого раунда.</p></div>
+                </div>
+                <div class="faq-item reveal reveal-delay-3">
+                    <button class="faq-question" aria-expanded="false">Какой уровень RP на сервере?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>У нас MRP (Medium Roleplay). Мы ожидаем базового отыгрыша роли, но не требуем театральных постановок. Главное — веди себя логично в рамках своей профессии.</p></div>
+                </div>
+                <div class="faq-item reveal reveal-delay-4">
+                    <button class="faq-question" aria-expanded="false">Сервер лагает? Пинг высокий?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>Из-за последних событий, связанных с перебоями сетевого трафика на территории России, подключение напрямую может быть нестабильным. Рекомендуется использовать виртуальные серверы для маршрутизации трафика — это значительно улучшит пинг и стабильность соединения. Если и после этого проблема сохраняется — напиши админам, мы разберёмся.</p></div>
+                </div>
+                <div class="faq-item reveal reveal-delay-5">
+                    <button class="faq-question" aria-expanded="false">Какой клиент скачать?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>Скачивайте только оригинальный клиент с официального сайта <a href="https://spacestation14.io" target="_blank" rel="noopener">spacestation14.io</a>. Не используйте сторонние сборки и пиратские лаунчеры — за это вы можете получить блокировку на сервере.</p></div>
+                </div>
+                <div class="faq-item reveal reveal-delay-6">
+                    <button class="faq-question" aria-expanded="false">Как стать администратором?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>Мы периодически проводим наборы. Основные требования: возраст от 14 лет, знание правил и хорошая репутация. Подробнее можно узнать в специальном канале нашего <a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener">Discord</a>.</p></div>
+                </div>
+                <div class="faq-item reveal reveal-delay-7">
+                    <button class="faq-question" aria-expanded="false">Могу ли я предложить идею для сервера?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>Конечно! У нас есть специальный канал для предложений в Discord. Мы читаем всё и реализуем лучшие идеи — многие фичи сервера появились именно так.</p></div>
+                </div>
+                <div class="faq-item reveal reveal-delay-1">
+                    <button class="faq-question" aria-expanded="false">Можно ли играть с мобильного устройства?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>Нет, Space Station 14 рассчитан только на ПК с Windows, Linux или macOS. Управление требует клавиатуры и мыши, и на мобильных устройствах игра не работает.</p></div>
+                </div>
+                <div class="faq-item reveal reveal-delay-2">
+                    <button class="faq-question" aria-expanded="false">Что делать, если я нашёл баг?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>Опиши баг как можно подробнее в соответствующем канале Discord — желательно с прикреплённым скриншотом или записью. Если ты умеешь оформлять баг-репорты, можешь создать issue напрямую в нашем <a href="https://github.com/Starry-pole/starry-pole-14" target="_blank" rel="noopener">репозитории на GitHub</a>.</p></div>
+                </div>
+                <div class="faq-item reveal reveal-delay-3">
+                    <button class="faq-question" aria-expanded="false">Как долго длится раунд?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>В среднем раунд длится от 40 минут до 2 часов, в зависимости от режима и развития событий. Некоторые режимы могут завершиться быстрее, если антагонисты достигнут цели — или, наоборот, затянуться при интересном стечении обстоятельств.</p></div>
+                </div>
+                <div class="faq-item reveal reveal-delay-4">
+                    <button class="faq-question" aria-expanded="false">Меня забанили. Как подать апелляцию?<span class="faq-chevron">▾</span></button>
+                    <div class="faq-answer"><p>Создай тикет в нашем <a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener">Discord</a>. Опиши ситуацию спокойно и честно — администрация пересмотрит бан. Грубость и оскорбления в тикете только ухудшат шансы.</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-logo"><span class="accent">Starry Pole</span> · Звёздный Полюс</div>
+            <p class="footer-desc">Русскоязычный сервер Space Station 14</p>
+            <div class="footer-links">
+                <a href="#status">Статус</a>
+                <a href="#about">О сервере</a>
+                <a href="#links">Ссылки</a>
+                <a href="#howto">Как начать</a>
+                <a href="#faq">FAQ</a>
+                <a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener">Discord</a>
+            </div>
+            <p class="footer-copy">© 2026 Starry Pole. Space Station 14 — проект Space Wizards Federation. Не является официальным сервером.</p>
+        </div>
+    </footer>
+
+    <script>
+    (function() {
+        var canvas = document.getElementById('starfield');
+        var ctx = canvas.getContext('2d');
+        var stars = [], shootingStars = [], animFrameId = null;
+
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+
+        function createStars(count) {
+            stars = [];
+            for (var i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.4 + 0.2, baseAlpha: Math.random() * 0.6 + 0.2, alpha: 0,
+                    twinkleSpeed: Math.random() * 0.008 + 0.002, twinkleOffset: Math.random() * Math.PI * 2,
+                    driftX: (Math.random() - 0.5) * 0.03, driftY: (Math.random() - 0.5) * 0.02
+                });
+            }
+        }
+
+        function spawnShootingStar() {
+            if (shootingStars.length >= 2 || Math.random() > 0.003) return;
+            shootingStars.push({
+                x: Math.random() * canvas.width * 0.7, y: Math.random() * canvas.height * 0.4,
+                length: Math.random() * 80 + 40, speed: Math.random() * 4 + 3,
+                angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3, alpha: 1, life: 1
+            });
+        }
+
+        function drawStars(time) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (var i = 0; i < stars.length; i++) {
+                var s = stars[i];
+                s.x += s.driftX; s.y += s.driftY;
+                if (s.x < -2) s.x = canvas.width + 2; if (s.x > canvas.width + 2) s.x = -2;
+                if (s.y < -2) s.y = canvas.height + 2; if (s.y > canvas.height + 2) s.y = -2;
+                s.alpha = Math.max(0.05, Math.min(1, s.baseAlpha + Math.sin(time * s.twinkleSpeed + s.twinkleOffset) * 0.3));
+                ctx.beginPath(); ctx.arc(s.x, s.y, Math.max(0.1, s.radius), 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(200, 220, 255, ' + s.alpha + ')'; ctx.fill();
+                if (s.radius > 1.0) {
+                    ctx.beginPath(); ctx.arc(s.x, s.y, s.radius * 3, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(180, 210, 255, ' + (s.alpha * 0.08) + ')'; ctx.fill();
+                }
+            }
+            spawnShootingStar();
+            for (var j = shootingStars.length - 1; j >= 0; j--) {
+                var ss = shootingStars[j];
+                ss.x += Math.cos(ss.angle) * ss.speed; ss.y += Math.sin(ss.angle) * ss.speed;
+                ss.life -= 0.015; ss.alpha = ss.life;
+                if (ss.life <= 0) { shootingStars.splice(j, 1); continue; }
+                var tx = ss.x - Math.cos(ss.angle) * ss.length * ss.alpha;
+                var ty = ss.y - Math.sin(ss.angle) * ss.length * ss.alpha;
+                var g = ctx.createLinearGradient(tx, ty, ss.x, ss.y);
+                g.addColorStop(0, 'rgba(200, 230, 255, 0)');
+                g.addColorStop(1, 'rgba(220, 240, 255, ' + (ss.alpha * 0.8) + ')');
+                ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(ss.x, ss.y);
+                ctx.strokeStyle = g; ctx.lineWidth = 1.5; ctx.stroke();
+                ctx.beginPath(); ctx.arc(ss.x, ss.y, 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, ' + ss.alpha + ')'; ctx.fill();
+            }
+            animFrameId = requestAnimationFrame(drawStars);
+        }
+
+        function initStarfield() {
+            resizeCanvas();
+            createStars(Math.min(250, Math.floor((canvas.width * canvas.height) / 5000)));
+            animFrameId = requestAnimationFrame(drawStars);
+        }
+
+        window.addEventListener('resize', function() {
+            resizeCanvas();
+            createStars(Math.min(250, Math.floor((canvas.width * canvas.height) / 5000)));
+        });
+
+        var pr = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!pr) { initStarfield(); } else {
+            resizeCanvas(); createStars(Math.min(150, Math.floor((canvas.width * canvas.height) / 8000)));
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (var i = 0; i < stars.length; i++) {
+                stars[i].alpha = stars[i].baseAlpha;
+                ctx.beginPath(); ctx.arc(stars[i].x, stars[i].y, Math.max(0.1, stars[i].radius), 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(200, 220, 255, ' + stars[i].alpha + ')'; ctx.fill();
+            }
+        }
+
+        var navbar = document.getElementById('navbar');
+        var navToggle = document.getElementById('nav-toggle');
+        var navLinks = document.getElementById('nav-links');
+        window.addEventListener('scroll', function() { navbar.classList.toggle('scrolled', window.scrollY > 40); });
+        if (navToggle) {
+            navToggle.addEventListener('click', function() {
+                var o = navLinks.classList.toggle('open');
+                navToggle.setAttribute('aria-expanded', o); navToggle.textContent = o ? '✕' : '☰';
+            });
+        }
+        if (navLinks) {
+            var nl = navLinks.querySelectorAll('a');
+            for (var i = 0; i < nl.length; i++) {
+                nl[i].addEventListener('click', function() {
+                    navLinks.classList.remove('open'); navToggle.setAttribute('aria-expanded', 'false'); navToggle.textContent = '☰';
+                });
+            }
+        }
+
+        var revEls = document.querySelectorAll('.reveal');
+        var revObs = new IntersectionObserver(function(e) {
+            for (var i = 0; i < e.length; i++) { if (e[i].isIntersecting) { e[i].target.classList.add('visible'); revObs.unobserve(e[i].target); } }
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        for (var r = 0; r < revEls.length; r++) revObs.observe(revEls[r]);
+
+        var sc = document.getElementById('server-card');
+        if (sc) { var co = new IntersectionObserver(function(e) { if (e[0].isIntersecting) { sc.classList.add('visible'); co.unobserve(sc); } }, { threshold: 0.1 }); co.observe(sc); }
+
+        var fi = document.querySelectorAll('.faq-item');
+        for (var f = 0; f < fi.length; f++) {
+            (function(item) {
+                item.querySelector('.faq-question').addEventListener('click', function() {
+                    var o = item.classList.contains('open');
+                    for (var k = 0; k < fi.length; k++) { fi[k].classList.remove('open'); fi[k].querySelector('.faq-question').setAttribute('aria-expanded', 'false'); }
+                    if (!o) { item.classList.add('open'); item.querySelector('.faq-question').setAttribute('aria-expanded', 'true'); }
+                });
+            })(fi[f]);
+        }
+
+        var isLoading = false, roundStartTime = null, timeUpdateInterval = null, autoRefreshInterval = null;
+        var isServerOnline = false, hasLoadedOnce = false;
+        var savedServerName = 'Starry Pole';
+        var statusUrl = 'http://93.88.206.3:20002/status', corsProxy = 'https://api.allorigins.win/raw?url=';
+        var AUTO_REFRESH_MS = 60000, MAX_RETRIES = 3, RETRY_DELAY_MS = 2000;
+
+        function updateServerIndicator(state) {
+            var ind = document.getElementById('server-indicator'), txt = document.getElementById('status-text');
+            if (!ind || !txt) return;
+            ind.className = 'server-status-indicator ' + state;
+            var m = { online: { c: 'online-text', l: 'онлайн' }, offline: { c: 'offline-text', l: 'оффлайн' }, checking: { c: 'checking-text', l: 'проверка...' } };
+            var info = m[state] || m.checking; txt.className = 'status-text ' + info.c; txt.textContent = info.l;
+        }
+
+        function updateRoundTime() {
+            var el = document.getElementById('round-time'); if (!el || !roundStartTime) return;
+            var d = Date.now() - roundStartTime.getTime(); if (d < 0) { el.textContent = '0с'; return; }
+            var ts = Math.floor(d / 1000), h = Math.floor(ts / 3600), m = Math.floor((ts % 3600) / 60), s = ts % 60, str = '';
+            if (h > 0) str += h + 'ч '; if (m > 0 || h > 0) str += m + 'м '; str += s + 'с'; el.textContent = str;
+        }
+
+        function startTimeUpdater() { stopTimeUpdater(); updateRoundTime(); timeUpdateInterval = setInterval(updateRoundTime, 1000); }
+        function stopTimeUpdater() { if (timeUpdateInterval) { clearInterval(timeUpdateInterval); timeUpdateInterval = null; } }
+
+        function normalizeTag(t) {
+            var l = t.toLowerCase(), m = { 'rp:none': 'NRP', 'rp:low': 'LRP', 'rp:med': 'MRP', 'rp:high': 'HRP', 'lang:ru': 'RU', 'lang:en': 'EN', 'lang:de': 'DE', 'lang:fr': 'FR', 'lang:es': 'ES', 'lang:zh': 'ZH', '18+': '18+', '+18': '18+' };
+            if (m[l]) return m[l];
+            if (l.startsWith('region:')) { var c = t.substring(7), rg = { eu_w: 'Зап.Европа', eu_e: 'Вост.Европа', am_n: 'Сев.Америка', am_s: 'Юж.Америка', as_e: 'Вост.Азия', as_se: 'Юго-Вост.Азия', oce: 'Океания', me: 'Ср.Восток' }; return rg[c] || c; }
+            if (l.startsWith('lang:')) return t.substring(5).toUpperCase(); if (l.startsWith('rp:')) return t.substring(3).toUpperCase(); return t;
+        }
+
+        function getTagClass(t) { var l = t.toLowerCase(); if (l === '18+' || l === '+18') return 'tag-18plus'; if (l === 'rp:med') return 'tag-mrp'; if (l === 'rp:high') return 'tag-hrp'; if (l === 'lang:ru') return 'tag-ru'; return ''; }
+
+        function renderTags(tags) {
+            var c = document.getElementById('header-tags'); if (!c) return;
+            if (!tags || !tags.length) { c.innerHTML = '<span class="server-tag">без тегов</span>'; return; }
+            c.innerHTML = tags.map(function(t) { return '<span class="server-tag ' + getTagClass(t) + '">' + normalizeTag(t) + '</span>'; }).join('');
+        }
+
+        function flashCard(id) { var c = document.getElementById(id); if (!c) return; c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); }
+
+        function updateLastUpdate(ok, info) {
+            var t = document.getElementById('update-time'), n = document.getElementById('update-note');
+            if (t) t.textContent = 'Обновлено: ' + new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            if (n) { n.className = 'update-note ' + (ok ? 'success' : 'error'); n.textContent = ok ? 'обновлено' : (info || 'ошибка подключения'); setTimeout(function() { if (n) { n.className = 'update-note'; n.textContent = 'автообновление 1 мин'; } }, 4000); }
+        }
+
+        async function fetchStatus() {
+            var ctrl = new AbortController(), to = setTimeout(function() { ctrl.abort(); }, 10000);
+            var resp = await fetch(corsProxy + encodeURIComponent(statusUrl), { signal: ctrl.signal, cache: 'no-store' });
+            clearTimeout(to); if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            var data = await resp.json(); if (!data || !Object.keys(data).length) throw new Error('Пустой ответ'); return data;
+        }
+
+        function applyData(data, flash) {
+            isServerOnline = true; hasLoadedOnce = true; updateServerIndicator('online');
+            var nameEl = document.getElementById('server-name');
+            var footerEl = document.getElementById('card-footer-text');
+            if (data.name) {
+                savedServerName = data.name;
+                if (nameEl) nameEl.textContent = savedServerName;
+                if (footerEl) footerEl.textContent = savedServerName + ' · данные с сервера /status';
+            } else {
+                if (nameEl) nameEl.textContent = savedServerName;
+                if (footerEl) footerEl.textContent = savedServerName + ' · данные с сервера /status';
+            }
+            var pl = data.players ?? 0, mx = data.soft_max_players ?? data.max_players ?? '?', mp = data.map ?? 'Неизвестно';
+            var rid = data.round_id ?? '—', pr = data.preset ?? data.game_mode ?? 'Секрет', rl = data.run_level ?? 1;
+            renderTags(data.tags || data.inferredTags || []);
+            if (data.round_start_time && rl === 1) { var ns = new Date(data.round_start_time); if (!roundStartTime || roundStartTime.getTime() !== ns.getTime()) { roundStartTime = ns; startTimeUpdater(); } else if (!timeUpdateInterval) startTimeUpdater(); } else { roundStartTime = null; stopTimeUpdater(); }
+            var badge = document.getElementById('status-badge'), sm = { 0: { t: 'Лобби', c: 'lobby' }, 1: { t: 'Раунд идёт', c: 'ongoing' }, 2: { t: 'Раунд завершён', c: 'ended' } }, st = sm[rl] || { t: 'Неизвестно', c: '' };
+            if (badge) { badge.textContent = st.t; badge.className = 'status-badge ' + st.c; }
+            var re = document.getElementById('round-number'); if (re) re.textContent = rid !== '—' ? '#' + rid : '—';
+            var pe = document.getElementById('players-count'); if (pe) pe.innerHTML = '<span class="highlight">' + pl + '</span> / ' + mx;
+            var me = document.getElementById('map-name'); if (me) me.textContent = mp;
+            var ge = document.getElementById('game-mode'); if (ge) ge.textContent = pr;
+            var te = document.getElementById('round-time'); if (te) { if (rl === 1) { if (roundStartTime && !timeUpdateInterval) startTimeUpdater(); else if (!roundStartTime) te.textContent = 'Идёт...'; } else if (rl === 0) te.textContent = 'Ожидание игроков'; else if (rl === 2) te.textContent = 'Раунд завершён'; else te.textContent = '—'; }
+            if (flash) { flashCard('card-players'); flashCard('card-map'); flashCard('card-mode'); flashCard('card-time'); }
+        }
+
+        async function autoLoadWithRetries() {
+            if (isLoading) return; isLoading = true; updateServerIndicator('checking');
+            for (var a = 1; a <= MAX_RETRIES; a++) { try { var d = await fetchStatus(); applyData(d, false); updateLastUpdate(true); isLoading = false; return; } catch (e) { console.warn('Попытка ' + a + '/' + MAX_RETRIES, e.message); if (a < MAX_RETRIES) await new Promise(function(r) { setTimeout(r, RETRY_DELAY_MS); }); } }
+            isServerOnline = false; updateServerIndicator('offline');
+            if (!hasLoadedOnce) { var tc = document.getElementById('header-tags'); if (tc) tc.innerHTML = '<span class="server-tag">недоступно</span>'; }
+            updateLastUpdate(false, 'ошибка (3 попытки)'); isLoading = false;
+        }
+
+        async function manualLoad() {
+            if (isLoading) return; isLoading = true; updateServerIndicator('checking');
+            var rb = document.getElementById('refresh-btn'), sh = '';
+            if (rb) { sh = rb.innerHTML; rb.innerHTML = '<span class="loading-spinner"></span>'; rb.disabled = true; }
+            try { var d = await fetchStatus(); applyData(d, true); updateLastUpdate(true); } catch (e) { isServerOnline = false; updateServerIndicator('offline'); updateLastUpdate(false, 'ошибка подключения'); }
+            finally { isLoading = false; if (rb) { rb.innerHTML = sh || 'Обновить'; rb.disabled = false; } }
+        }
+
+        (function() { var b = document.getElementById('copy-connect-btn'); if (!b) return; b.addEventListener('click', async function() { var a = b.getAttribute('data-address'); if (!a) return; try { await navigator.clipboard.writeText(a); } catch (e) { var t = document.createElement('textarea'); t.value = a; t.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (_) {} document.body.removeChild(t); } var s = b.querySelector('span'); if (s) s.textContent = 'Скопировано!'; b.classList.add('copied'); setTimeout(function() { if (s) s.textContent = 'ss14://93.88.206.3:20002'; b.classList.remove('copied'); }, 2000); }); })();
+        (function() { var b = document.getElementById('refresh-btn'); if (b) b.addEventListener('click', manualLoad); })();
+
+        autoLoadWithRetries();
+        autoRefreshInterval = setInterval(autoLoadWithRetries, AUTO_REFRESH_MS);
+
+        window.addEventListener('beforeunload', function() { stopTimeUpdater(); if (autoRefreshInterval) clearInterval(autoRefreshInterval); if (animFrameId) cancelAnimationFrame(animFrameId); });
+    })();
+    </script>
+</body>
+</html>
