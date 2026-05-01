@@ -220,7 +220,6 @@
             animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
         }
         @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeUpScale { to { opacity: 1; transform: translateY(0) scale(1); } }
 
         .btn {
             display: inline-flex; align-items: center; gap: 10px;
@@ -313,12 +312,9 @@
         }
         .server-status-indicator.online { background: var(--ongoing); box-shadow: 0 0 6px var(--ongoing-glow); animation: pulseOnline 1.6s ease-in-out infinite; }
         .server-status-indicator.offline { background: var(--danger); box-shadow: 0 0 6px var(--danger-glow); animation: none; }
-        .server-status-indicator.checking { background: var(--warning); box-shadow: 0 0 4px var(--warning-glow); animation: pulseCheck 0.7s ease-in-out infinite; }
-        @keyframes pulseCheck { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
         .status-text { font-weight: 500; }
         .status-text.online-text { color: var(--ongoing); }
         .status-text.offline-text { color: var(--danger); }
-        .status-text.checking-text { color: var(--warning); }
         .header-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; flex-shrink: 0; }
         .server-tag {
             display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 20px;
@@ -611,7 +607,6 @@
     <nav class="navbar" id="navbar" role="navigation" aria-label="Основная навигация">
         <a href="#" class="nav-logo">
             <div class="nav-logo-icon">
-                <!-- ЗАМЕНИТЕ src НА ССЫЛКУ НА ВАШЕ ЛОГО -->
                 <img src="logo.png" alt="Starry Pole">
             </div>
             <span class="nav-logo-text">Starry Pole</span>
@@ -653,10 +648,8 @@
                     <div class="title-section">
                         <h2 id="server-name">Starry Pole</h2>
                         <div class="title-sub">
-                            <span id="server-indicator" class="server-status-indicator checking" aria-label="Статус подключения"></span>
-                            <span id="status-text" class="status-text checking-text">проверка...</span>
-                            <span style="color: var(--text-muted);">·</span>
-                            <span>SS14</span>
+                            <span id="server-indicator" class="server-status-indicator" aria-label="Статус подключения"></span>
+                            <span id="status-text" class="status-text" style="color: var(--text-muted);">SS14</span>
                         </div>
                     </div>
                 </div>
@@ -697,8 +690,8 @@
                     <button id="refresh-btn" class="refresh-btn" aria-label="Обновить статус">Обновить</button>
                 </div>
                 <div class="update-info">
-                    <span id="update-time">—</span>
-                    <span id="update-note" class="update-note">ожидание данных</span>
+                    <span id="update-time"></span>
+                    <span id="update-note" class="update-note"></span>
                 </div>
             </div>
             <div class="card-footer" id="card-footer-text">Starry Pole · данные с сервера /status</div>
@@ -730,12 +723,12 @@
                     <h3>Кастомный контент</h3>
                     <p>Уникальные предметы, механизмы и события. И это только начало — новые фичи появляются каждый месяц.</p>
                 </div>
-                <div class="about-card reveal reveal-delay-4">
+                <div class="about-card reveal-delay-4">
                     <div class="about-card-icon">🤝</div>
                     <h3>Дружелюбное комьюнити</h3>
                     <p>Доброжелательная атмосфера, помощь новичкам и активное сообщество. Ты не останешься один.</p>
                 </div>
-                <div class="about-card reveal reveal-delay-5">
+                <div class="about-card reveal-delay-5">
                     <div class="about-card-icon">⚙️</div>
                     <h3>Открытая разработка</h3>
                     <p>Сервер активно разрабатывается, и вы можете принять участие в разработке — приходи в Discord, чтобы узнать подробности.</p>
@@ -813,7 +806,7 @@
                         <p>В лаунчере нажми «+» для добавления сервера, введи любое название и вставь скопированный адрес. Сохрани сервер в избранное, выбери его из списка и нажми «Подключиться».</p>
                     </div>
                 </div>
-                <div class="step-item reveal reveal-delay-4">
+                <div class="step-item reveal-delay-4">
                     <div class="step-number">4</div>
                     <div class="step-content">
                         <h4>Прочитай правила и играй!</h4>
@@ -842,39 +835,39 @@
                     <button class="faq-question" aria-expanded="false">Я никогда не играл в SS14. Что делать?<span class="faq-chevron">▾</span></button>
                     <div class="faq-answer"><p>Добро пожаловать! Зайди в наш <a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener">Discord</a> — там всегда помогут новеньким, подскажут базовые механики и подберут подходящую роль для первого раунда.</p></div>
                 </div>
-                <div class="faq-item reveal reveal-delay-3">
+                <div class="faq-item reveal-delay-3">
                     <button class="faq-question" aria-expanded="false">Какой уровень RP на сервере?<span class="faq-chevron">▾</span></button>
                     <div class="faq-answer"><p>У нас MRP (Medium Roleplay). Мы ожидаем базового отыгрыша роли, но не требуем театральных постановок. Главное — веди себя логично в рамках своей профессии.</p></div>
                 </div>
-                <div class="faq-item reveal reveal-delay-4">
+                <div class="faq-item reveal-delay-4">
                     <button class="faq-question" aria-expanded="false">Сервер лагает? Пинг высокий?<span class="faq-chevron">▾</span></button>
                     <div class="faq-answer"><p>Из-за последних событий, связанных с перебоями сетевого трафика на территории России, подключение напрямую может быть нестабильным. Рекомендуется использовать виртуальные серверы для маршрутизации трафика — это значительно улучшит пинг и стабильность соединения. Если и после этого проблема сохраняется — напиши админам, мы разберёмся.</p></div>
                 </div>
-                <div class="faq-item reveal reveal-delay-5">
+                <div class="faq-item reveal-delay-5">
                     <button class="faq-question" aria-expanded="false">Какой клиент скачать?<span class="faq-chevron">▾</span></button>
                     <div class="faq-answer"><p>Скачивайте только оригинальный клиент с официального сайта <a href="https://spacestation14.io" target="_blank" rel="noopener">spacestation14.io</a>. Не используйте сторонние сборки и пиратские лаунчеры — за это вы можете получить блокировку на сервере.</p></div>
                 </div>
-                <div class="faq-item reveal reveal-delay-6">
+                <div class="faq-item reveal-delay-6">
                     <button class="faq-question" aria-expanded="false">Как стать администратором?<span class="faq-chevron">▾</span></button>
                     <div class="faq-answer"><p>Мы периодически проводим наборы. Основные требования: возраст от 14 лет, знание правил и хорошая репутация. Подробнее можно узнать в специальном канале нашего <a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener">Discord</a>.</p></div>
                 </div>
-                <div class="faq-item reveal reveal-delay-7">
+                <div class="faq-item reveal-delay-7">
                     <button class="faq-question" aria-expanded="false">Могу ли я предложить идею для сервера?<span class="faq-chevron">▾</span></button>
                     <div class="faq-answer"><p>Конечно! У нас есть специальный канал для предложений в Discord. Мы читаем всё и реализуем лучшие идеи — многие фичи сервера появились именно так.</p></div>
                 </div>
-                <div class="faq-item reveal reveal-delay-1">
+                <div class="faq-item reveal-delay-1">
                     <button class="faq-question" aria-expanded="false">Можно ли играть с мобильного устройства?<span class="faq-chevron">▾</span></button>
                     <div class="faq-answer"><p>Нет, Space Station 14 рассчитан только на ПК с Windows, Linux или macOS. Управление требует клавиатуры и мыши, и на мобильных устройствах игра не работает.</p></div>
                 </div>
-                <div class="faq-item reveal reveal-delay-2">
+                <div class="faq-item reveal-delay-2">
                     <button class="faq-question" aria-expanded="false">Что делать, если я нашёл баг?<span class="faq-chevron">▾</span></button>
                     <div class="faq-answer"><p>Опиши баг как можно подробнее в соответствующем канале Discord — желательно с прикреплённым скриншотом или записью. Если ты умеешь оформлять баг-репорты, можешь создать issue напрямую в нашем <a href="https://github.com/Starry-pole/starry-pole-14" target="_blank" rel="noopener">репозитории на GitHub</a>.</p></div>
                 </div>
-                <div class="faq-item reveal reveal-delay-3">
+                <div class="faq-item reveal-delay-3">
                     <button class="faq-question" aria-expanded="false">Как долго длится раунд?<span class="faq-chevron">▾</span></button>
                     <div class="faq-answer"><p>В среднем раунд длится от 40 минут до 2 часов, в зависимости от режима и развития событий. Некоторые режимы могут завершиться быстрее, если антагонисты достигнут цели — или, наоборот, затянуться при интересном стечении обстоятельств.</p></div>
                 </div>
-                <div class="faq-item reveal reveal-delay-4">
+                <div class="faq-item reveal-delay-4">
                     <button class="faq-question" aria-expanded="false">Меня забанили. Как подать апелляцию?<span class="faq-chevron">▾</span></button>
                     <div class="faq-answer"><p>Создай тикет в нашем <a href="https://discord.gg/dyEBh4cvKQ" target="_blank" rel="noopener">Discord</a>. Опиши ситуацию спокойно и честно — администрация пересмотрит бан. Грубость и оскорбления в тикете только ухудшат шансы.</p></div>
                 </div>
@@ -900,6 +893,7 @@
 
     <script>
     (function() {
+        /* ===== ЗВЁЗДНОЕ НЕБО ===== */
         var canvas = document.getElementById('starfield');
         var ctx = canvas.getContext('2d');
         var stars = [], shootingStars = [], animFrameId = null;
@@ -983,6 +977,7 @@
             }
         }
 
+        /* ===== НАВИГАЦИЯ ===== */
         var navbar = document.getElementById('navbar');
         var navToggle = document.getElementById('nav-toggle');
         var navLinks = document.getElementById('nav-links');
@@ -1002,6 +997,7 @@
             }
         }
 
+        /* ===== SCROLL REVEAL ===== */
         var revEls = document.querySelectorAll('.reveal');
         var revObs = new IntersectionObserver(function(e) {
             for (var i = 0; i < e.length; i++) { if (e[i].isIntersecting) { e[i].target.classList.add('visible'); revObs.unobserve(e[i].target); } }
@@ -1011,6 +1007,7 @@
         var sc = document.getElementById('server-card');
         if (sc) { var co = new IntersectionObserver(function(e) { if (e[0].isIntersecting) { sc.classList.add('visible'); co.unobserve(sc); } }, { threshold: 0.1 }); co.observe(sc); }
 
+        /* ===== FAQ ===== */
         var fi = document.querySelectorAll('.faq-item');
         for (var f = 0; f < fi.length; f++) {
             (function(item) {
@@ -1022,18 +1019,29 @@
             })(fi[f]);
         }
 
+        /* ===== СТАТУС СЕРВЕРА (без индикации "проверка") ===== */
         var isLoading = false, roundStartTime = null, timeUpdateInterval = null, autoRefreshInterval = null;
         var isServerOnline = false, hasLoadedOnce = false;
         var savedServerName = 'Starry Pole';
         var statusUrl = 'http://93.88.206.3:20002/status', corsProxy = 'https://api.allorigins.win/raw?url=';
         var AUTO_REFRESH_MS = 60000, MAX_RETRIES = 3, RETRY_DELAY_MS = 2000;
 
+        /* Меняем только online/offline — без checking */
         function updateServerIndicator(state) {
             var ind = document.getElementById('server-indicator'), txt = document.getElementById('status-text');
             if (!ind || !txt) return;
             ind.className = 'server-status-indicator ' + state;
-            var m = { online: { c: 'online-text', l: 'онлайн' }, offline: { c: 'offline-text', l: 'оффлайн' }, checking: { c: 'checking-text', l: 'проверка...' } };
-            var info = m[state] || m.checking; txt.className = 'status-text ' + info.c; txt.textContent = info.l;
+            if (state === 'online') {
+                txt.className = 'status-text online-text';
+                txt.textContent = 'онлайн';
+            } else if (state === 'offline') {
+                txt.className = 'status-text offline-text';
+                txt.textContent = 'оффлайн';
+            } else {
+                ind.className = 'server-status-indicator';
+                txt.className = 'status-text';
+                txt.textContent = 'SS14';
+            }
         }
 
         function updateRoundTime() {
@@ -1064,9 +1072,13 @@
         function flashCard(id) { var c = document.getElementById(id); if (!c) return; c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); }
 
         function updateLastUpdate(ok, info) {
-            var t = document.getElementById('update-time'), n = document.getElementById('update-note');
-            if (t) t.textContent = 'Обновлено: ' + new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            if (n) { n.className = 'update-note ' + (ok ? 'success' : 'error'); n.textContent = ok ? 'обновлено' : (info || 'ошибка подключения'); setTimeout(function() { if (n) { n.className = 'update-note'; n.textContent = 'автообновление 1 мин'; } }, 4000); }
+            var t = document.getElementById('update-time');
+            if (t) {
+                t.textContent = 'Обновлено: ' + new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+            /* Не показываем никаких сообщений в нижней строке */
+            var n = document.getElementById('update-note');
+            if (n) { n.className = 'update-note'; n.textContent = ''; }
         }
 
         async function fetchStatus() {
@@ -1078,6 +1090,7 @@
 
         function applyData(data, flash) {
             isServerOnline = true; hasLoadedOnce = true; updateServerIndicator('online');
+
             var nameEl = document.getElementById('server-name');
             var footerEl = document.getElementById('card-footer-text');
             if (data.name) {
@@ -1088,6 +1101,7 @@
                 if (nameEl) nameEl.textContent = savedServerName;
                 if (footerEl) footerEl.textContent = savedServerName + ' · данные с сервера /status';
             }
+
             var pl = data.players ?? 0, mx = data.soft_max_players ?? data.max_players ?? '?', mp = data.map ?? 'Неизвестно';
             var rid = data.round_id ?? '—', pr = data.preset ?? data.game_mode ?? 'Секрет', rl = data.run_level ?? 1;
             renderTags(data.tags || data.inferredTags || []);
@@ -1103,18 +1117,18 @@
         }
 
         async function autoLoadWithRetries() {
-            if (isLoading) return; isLoading = true; updateServerIndicator('checking');
+            if (isLoading) return; isLoading = true;
             for (var a = 1; a <= MAX_RETRIES; a++) { try { var d = await fetchStatus(); applyData(d, false); updateLastUpdate(true); isLoading = false; return; } catch (e) { console.warn('Попытка ' + a + '/' + MAX_RETRIES, e.message); if (a < MAX_RETRIES) await new Promise(function(r) { setTimeout(r, RETRY_DELAY_MS); }); } }
             isServerOnline = false; updateServerIndicator('offline');
             if (!hasLoadedOnce) { var tc = document.getElementById('header-tags'); if (tc) tc.innerHTML = '<span class="server-tag">недоступно</span>'; }
-            updateLastUpdate(false, 'ошибка (3 попытки)'); isLoading = false;
+            updateLastUpdate(false); isLoading = false;
         }
 
         async function manualLoad() {
-            if (isLoading) return; isLoading = true; updateServerIndicator('checking');
+            if (isLoading) return; isLoading = true;
             var rb = document.getElementById('refresh-btn'), sh = '';
             if (rb) { sh = rb.innerHTML; rb.innerHTML = '<span class="loading-spinner"></span>'; rb.disabled = true; }
-            try { var d = await fetchStatus(); applyData(d, true); updateLastUpdate(true); } catch (e) { isServerOnline = false; updateServerIndicator('offline'); updateLastUpdate(false, 'ошибка подключения'); }
+            try { var d = await fetchStatus(); applyData(d, true); updateLastUpdate(true); } catch (e) { isServerOnline = false; updateServerIndicator('offline'); updateLastUpdate(false); }
             finally { isLoading = false; if (rb) { rb.innerHTML = sh || 'Обновить'; rb.disabled = false; } }
         }
 
